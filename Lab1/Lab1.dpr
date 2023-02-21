@@ -18,7 +18,7 @@ type
 
 procedure CreateList(var Header: TPointer);
 var
-  N, I: Integer;
+  N, I, C: Integer;
   P, Tmp: TPointer;
 begin
   write('Введите степень многочлена: ');
@@ -27,19 +27,29 @@ begin
   new(P);
   if N >= 0 then
   begin
-    P^.Pow := N;
-    Header^.Next := P;
-    write('Введите коэффициент при x^', P^.Pow, ': ');
-    readln(P^.Coef);
+    write('Введите коэффициент при x^', N, ': ');
+    readln(C);
+    if C <> 0 then
+    begin
+      Header^.Next := P;
+      P^.Pow := N;
+      P^.Coef := C;
+    end
+    else
+      P := Header;
   end;
   for I := 1 to N do
   begin
-    new(Tmp);
-    P^.Next := Tmp;
-    Tmp^.Pow := N - I;
-    write('Введите коэффициент при x^', Tmp^.Pow, ': ');
-    readln(Tmp^.Coef);
-    P := Tmp;
+    write('Введите коэффициент при x^', N - I, ': ');
+    readln(C);
+    if C <> 0 then
+    begin
+      new(Tmp);
+      P^.Next := Tmp;
+      Tmp^.Pow := N - I;
+      Tmp^.Coef := C;
+      P := Tmp;
+    end;
   end;
   P^.Next := nil;
 end;
@@ -53,11 +63,11 @@ begin
       write('x^', P^.Pow)
     else if (P^.Pow <> 0) and (P^.Coef = -1) then
       write('-x^', P^.Pow)
-    else if (P^.Pow = 1) and (P^.Coef <> 0) then
+    else if (P^.Pow = 1) then
       write(P^.Coef, 'x')
-    else if (P^.Pow = 0) and (P^.Coef <> 0) then
+    else if (P^.Pow = 0) then
       write(P^.Coef)
-    else if (P^.Coef <> 0) then
+    else
       write(P^.Coef, 'x^', P^.Pow);
     P := P^.Next;
   end;
@@ -95,7 +105,7 @@ begin
     Flag := False;
   while Flag and (P <> nil) and (Q <> nil) do
   begin
-    if (P^.Coef <> Q^.Coef) then
+    if (P^.Pow <> Q^.Pow) or (P^.Coef <> Q^.Coef) then
       Flag := False;
     P := P^.Next;
     Q := Q^.Next;
@@ -116,7 +126,7 @@ end;
 
 procedure Add(var P: TPointer; Q: TPointer; R: TPointer);
 var
-  N, I: Integer;
+  N, I, C: Integer;
   Tmp, tmp1: TPointer;
 begin
   Q := Q^.Next;
@@ -128,33 +138,36 @@ begin
   begin
     Tmp^.Pow := N;
     P^.Next := Tmp;
-    Tmp^.Coef := 0;
   end;
-  for I := 1 to N do
-  begin
-    new(tmp1);
-    Tmp^.Next := tmp1;
-    tmp1^.Pow := N - I;
-    tmp1^.Coef := 0;
-    Tmp := tmp1;
-  end;
-  Tmp^.Next := nil;
-  Tmp := P;
-  Tmp := Tmp^.Next;
+
   while (Q <> nil) or (R <> nil) do
   begin
+    C := 0;
     if (Q <> nil) and (Q^.Pow = Tmp^.Pow) then
     begin
-      Tmp^.Coef := Tmp^.Coef + Q^.Coef;
+      C := C + Q^.Coef;
       Q := Q^.Next;
     end;
     if (R <> nil) and (R^.Pow = Tmp^.Pow) then
     begin
-      Tmp^.Coef := Tmp^.Coef + R^.Coef;
+      C := C + R^.Coef;
       R := R^.Next;
     end;
-    Tmp := Tmp^.Next;
+    Tmp^.Coef := C;
+    if (Q <> nil) or (R <> nil) then
+    begin
+      new(tmp1);
+      Tmp^.Next := tmp1;
+      Tmp := tmp1;
+    end;
+    if (Q = nil) and (R <> nil) then
+      Tmp^.Pow := R^.Pow
+    else if (Q <> nil) and (R = nil) then
+      Tmp^.Pow := Q^.Pow
+    else if (Q <> nil) and (R <> nil) then
+      Tmp^.Pow := max(Q^.Pow, R^.Pow);
   end;
+  Tmp^.Next := nil;
 end;
 
 var
