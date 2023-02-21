@@ -21,13 +21,13 @@ var
   N, I, C: Integer;
   P, Tmp: TPointer;
 begin
-  write('Введите степень многочлена: ');
+  write('Enter degree of polynomial: ');
   readln(N);
   new(Header);
   new(P);
   if N >= 0 then
   begin
-    write('Введите коэффициент при x^', N, ': ');
+    write('Enter coefficient at x^', N, ': ');
     readln(C);
     if C <> 0 then
     begin
@@ -40,7 +40,7 @@ begin
   end;
   for I := 1 to N do
   begin
-    write('Введите коэффициент при x^', N - I, ': ');
+    write('Enter coefficient at x^', N - I, ': ');
     readln(C);
     if C <> 0 then
     begin
@@ -178,45 +178,45 @@ begin
   Task := 1;
   while Task <> 0 do
   begin
-    writeln('Выберите дейстиве: ');
-    writeln('1 - Проверить равенство многочленов');
-    writeln('2 - Вычислить значение многочлена');
-    writeln('3 - Сложить два многочлена');
-    writeln('0 - Выход');
+    writeln('Choose an action: ');
+    writeln('1 - Check polynomial equality');
+    writeln('2 - Calculate the value of a polynomial');
+    writeln('3 - Add two polynomials');
+    writeln('0 - Exit');
     readln(Task);
     case Task of
       1:
         begin
           CreateList(P);
-          writeln('Многочлен P:');
+          writeln('Polynomial P:');
           PrintList(P);
           CreateList(Q);
-          writeln('Многочлен Q:');
+          writeln('Polynomial Q:');
           PrintList(Q);
           if (Equality(P, Q)) then
-            writeln('Многочлены равны')
+            writeln('Polynomials are equal')
           else
-            writeln('Многочлены не равны');
+            writeln('Polynomials are not equal');
         end;
       2:
         begin
           CreateList(P);
-          writeln('Многочлен P:');
+          writeln('Polynomial P:');
           PrintList(P);
-          write('Введите x: ');
+          write('Enter x: ');
           readln(X);
-          writeln('Ответ: ', Meaning(P, X):10:4);
+          writeln('The result is: ', Meaning(P, X):10:4);
         end;
       3:
         begin
           CreateList(Q);
-          writeln('Многочлен Q:');
+          writeln('Polynomial Q:');
           PrintList(Q);
           CreateList(R);
-          writeln('Многочлен R:');
+          writeln('Polynomial R:');
           PrintList(R);
           Add(P, Q, R);
-          writeln('Результат сложения:');
+          writeln('The result is:');
           PrintList(P);
         end;
     end;
