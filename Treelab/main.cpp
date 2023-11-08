@@ -1,193 +1,214 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "misc-no-recursion"
 #include <iostream>
-#include <cmath>
 #include <string>
+#include <memory>
 
-#define max(a, b) (a > b ? a : b)
+#define max(a, b) ((a) > (b) ? (a) : (b))
 
 struct Node {
-    int data, str_len;
+    int data;
+    size_t str_len;
     Node *left, *right;
     std::string str;
     bool is_r_thread;
 
-    explicit Node(int d) {
-        data = d;
+    explicit Node(int value) {
+        data = value;
         left = nullptr;
         right = nullptr;
-        str = std::to_string(d);
-        str_len = str.length();
         is_r_thread = false;
+        str_len = std::to_string(value).length();
     }
 };
 
-Node *insert(Node *curr, int d) {
-    if (curr == nullptr)
+Node *insert(Node *node, int d) {
+    if (node == nullptr)
         return new Node(d);
-    if (curr->data > d)
-        curr->left = insert(curr->left, d);
-    else if (curr->data < d)
-        curr->right = insert(curr->right, d);
-    return curr;
+    if (node->data > d)
+        node->left = insert(node->left, d);
+    else if (node->data < d)
+        node->right = insert(node->right, d);
+    return node;
 }
 
-Node *init_tree(Node *node, int *arr, int n) {
+Node *arrToTree(Node *node, int *arr, int n) {
     for (int i = 0; i < n; ++i)
         node = insert(node, arr[i]);
     return node;
 }
 
-int calc_height(Node *node) {
+int calcHeight(Node *node) {
     if (node == nullptr)
         return 0;
-    return max(calc_height(node->right), calc_height(node->left)) + 1;
+    return max(calcHeight(node->right), calcHeight(node->left)) + 1;
 }
 
-void pprint(Node *n, int spaces) {
-    if (n == nullptr)
+void prettyPrint(Node *node, size_t spaces) {
+    if (node == nullptr)
         return;
-    pprint(n->right, spaces + n->str_len + 3);
+    prettyPrint(node->right, spaces + node->str_len + 3);
     for (int i = 0; i < spaces; ++i)
-        printf(" ");
-    printf("%d\n", n->data);
-    pprint(n->left, spaces + n->str_len + 3);
+        std::cout << " ";
+    std::cout << node->data << '\n';
+    prettyPrint(node->left, spaces + node->str_len + 3);
 }
 
-void print_direct(Node *root) {
-    if (root == nullptr)
+void printDirect(Node *node) {
+    if (node == nullptr)
         return;
-    printf("%d ", root->data);
-    print_direct(root->left);
-    print_direct(root->right);
+    std::cout << node->data << ' ';
+    printDirect(node->left);
+    printDirect(node->right);
 }
 
-void print_symmetric(Node *root) {
-    if (root == nullptr)
+void printSymmetric(Node *node) {
+    if (node == nullptr)
         return;
-    print_symmetric(root->left);
-    printf("%d ", root->data);
-    print_symmetric(root->right);
+    printSymmetric(node->left);
+    std::cout << node->data << ' ';
+    printSymmetric(node->right);
 }
 
-void print_reverse(Node *root) {
-    if (root == nullptr)
+void printReverse(Node *node) {
+    if (node == nullptr)
         return;
-    print_reverse(root->left);
-    print_reverse(root->right);
-    printf("%d ", root->data);
+    printReverse(node->left);
+    printReverse(node->right);
+    std::cout << node->data << ' ';
 }
 
-Node *pr = nullptr;
-
-void symmetric_thread(Node *root) {
-    if (root == nullptr)
+void rightThread(Node *node, Node *&previous) {
+    if (node == nullptr)
         return;
-    symmetric_thread(root->left);
-    if (pr != nullptr && pr->right == nullptr) {
-        pr->right = root;
-        pr->is_r_thread = true;
+    rightThread(node->left, previous);
+    if (previous != nullptr && previous->right == nullptr) {
+        previous->right = node;
+        previous->is_r_thread = true;
     }
-    pr = root;
-    symmetric_thread(root->right);
+    previous = node;
+    rightThread(node->right, previous);
 }
 
-Node *find_min(Node *n) {
-    if (n->left == nullptr)
-        return n;
-    return find_min(n->left);
+Node *findMin(Node *node) {
+    if (node->left == nullptr)
+        return node;
+    return findMin(node->left);
 }
 
-Node *remove_min(Node *n) {
-    if (n->left == nullptr)
-        return n->right;
-    n->left = remove_min(n->left);
-    return n;
+Node *removeMin(Node *node) {
+    if (node->left == nullptr) {
+        return node->right;
+    }
+    node->left = removeMin(node->left);
+    return node;
 }
 
-Node *remove(Node *n, int key) {
-    if (n == nullptr)
+Node *remove(Node *node, int key) {
+    if (node == nullptr)
         return nullptr;
-    if (key < n->data)
-        n->left = remove(n->left, key);
-    else if (key > n->data)
-        n->right = remove(n->right, key);
+    if (key < node->data)
+        node->left = remove(node->left, key);
+    else if (key > node->data)
+        node->right = remove(node->right, key);
     else {
-        Node *l = n->left;
-        Node *r = n->right;
-        if (r == nullptr)
+        Node *l = node->left;
+        Node *r = node->right;
+        delete node;
+        if (r == nullptr) {
             return l;
-        Node *min = find_min(r);
-        min->right = remove_min(r);
+        }
+        Node *min = findMin(r);
+        min->right = removeMin(r);
         min->left = l;
         return min;
     }
-    return n;
+    return node;
 }
 
-void delete_threading(Node *root) {
-    if (root == nullptr)
+void deleteThread(Node *node) {
+    if (node == nullptr)
         return;
-    delete_threading(root->left);
-    if (root->is_r_thread) {
-        root->is_r_thread = false;
-        root->right = nullptr;
+    deleteThread(node->left);
+    if (node->is_r_thread) {
+        node->is_r_thread = false;
+        node->right = nullptr;
     }
-    delete_threading(root->right);
+    deleteThread(node->right);
 }
 
-void print_threading(Node *root) {
-    Node *head = root;
-    do {
-        while (root->left != nullptr) {
-            root = root->left;
+void printThread(Node *node) {
+    while (node != nullptr) {
+        while (node->left != nullptr) {
+            node = node->left;
         }
-        bool flag = true;
+        bool flag;
         do {
-            if (root->is_r_thread)
-                printf("%d->%d ", root->data, root->right->data);
-            flag = root->is_r_thread;
-            root = root->right;
+            if (node->is_r_thread)
+                printf("%d->%d ", node->data, node->right->data);
+            flag = node->is_r_thread;
+            node = node->right;
         } while (flag);
-    } while (root != nullptr);
+    }
+}
+
+void freeTree(Node *node) {
+    while (node != nullptr) {
+        while (node->left != nullptr) {
+            node = node->left;
+        }
+        bool flag;
+        do {
+            flag = node->is_r_thread;
+            Node *tmp = node->right;
+            delete node;
+            node = tmp;
+        } while (flag);
+    }
 }
 
 int main() {
-    int n, *arr, key;
-    printf_s("Enter arr size:");
-    scanf_s("%i", &n);
-    arr = new int[n];
-    printf_s("Enter arr:");
+    int n, key;
+    std::unique_ptr<int[]> arr;
+    Node *previous = nullptr;
+
+    std::cout << "Enter arr size:";
+    std::cin >> n;
+    arr = std::make_unique<int[]>(n);
+    std::cout << "Enter arr:";
     for (int i = 0; i < n; ++i)
-        scanf_s("%i", &arr[i]);
+        std::cin >> arr[i];
 
     Node *tree = nullptr;
-    tree = init_tree(tree, arr, n);
+    tree = arrToTree(tree, arr.get(), n);
 
-    pprint(tree, 0);
+    std::cout << "pretty print:\n";
+    prettyPrint(tree, 0);
 
-    printf_s("direct: ");
-    print_direct(tree);
+    std::cout << "\ndirect: ";
+    printDirect(tree);
 
-    printf_s("\nsymmetric: ");
-    print_symmetric(tree);
+    std::cout << "\nsymmetric: ";
+    printSymmetric(tree);
 
-    printf_s("\nreverse: ");
-    print_reverse(tree);
+    std::cout << "\nreverse: ";
+    printReverse(tree);
 
-    symmetric_thread(tree);
+    rightThread(tree, previous);
 
-    printf_s("\nThread before delete: ");
-    print_threading(tree);
+    std::cout << "\nThread before delete: ";
+    printThread(tree);
 
-    printf_s("\nEnter the key to delete: ");
-    scanf_s("%d", &key);
+    std::cout << "\nEnter the key to delete:";
+    std::cin >> key;
 
-    delete_threading(tree);
+    deleteThread(tree);
     tree = remove(tree, key);
-    pr = nullptr;
-    symmetric_thread(tree);
 
-    printf_s("\nThread after delete: ");
-    print_threading(tree);
+    previous = nullptr;
+    rightThread(tree, previous);
 
-    delete[] arr;
+    std::cout << "Thread after delete: ";
+    printThread(tree);
+    freeTree(tree);
 }
