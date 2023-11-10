@@ -1,10 +1,9 @@
-#pragma clang diagnostic push
 #pragma ide diagnostic ignored "misc-no-recursion"
+
 #include <iostream>
 #include <string>
 #include <memory>
-
-#define max(a, b) ((a) > (b) ? (a) : (b))
+#include <limits>
 
 struct Node {
     int data;
@@ -41,7 +40,7 @@ Node *arrToTree(Node *node, int *arr, int n) {
 int calcHeight(Node *node) {
     if (node == nullptr)
         return 0;
-    return max(calcHeight(node->right), calcHeight(node->left)) + 1;
+    return std::max(calcHeight(node->right), calcHeight(node->left)) + 1;
 }
 
 void prettyPrint(Node *node, size_t spaces) {
@@ -167,17 +166,31 @@ void freeTree(Node *node) {
     }
 }
 
+template<typename T>
+void input(T &variable, const std::string &promptStr, char delim) {
+    bool isWrongInput;
+    do {
+        std::cout << promptStr;
+        std::cin >> variable;
+
+        isWrongInput = std::cin.fail();
+        if (isWrongInput) {
+            std::cin.clear();
+        }
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), delim);
+        isWrongInput = isWrongInput || std::cin.gcount() > 1;
+    } while (isWrongInput);
+}
+
 int main() {
     int n, key;
     std::unique_ptr<int[]> arr;
     Node *previous = nullptr;
 
-    std::cout << "Enter arr size:";
-    std::cin >> n;
+    input(n, "Enter arr size:", '\n');
     arr = std::make_unique<int[]>(n);
-    std::cout << "Enter arr:";
     for (int i = 0; i < n; ++i)
-        std::cin >> arr[i];
+        input(arr[i], "Enter arr[" + std::to_string(i) + "]:", '\n');
 
     Node *tree = nullptr;
     tree = arrToTree(tree, arr.get(), n);
@@ -199,8 +212,7 @@ int main() {
     std::cout << "\nThread before delete: ";
     printThread(tree);
 
-    std::cout << "\nEnter the key to delete:";
-    std::cin >> key;
+    input(key, "\nEnter the key to delete:", '\n');
 
     deleteThread(tree);
     tree = remove(tree, key);
