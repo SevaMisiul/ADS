@@ -1,3 +1,0 @@
-E:/Документы/Уник/Лабы/АиСД/ADS/Treelab/cmake-build-debug/CMakeFiles/Treelab.dir
-E:/Документы/Уник/Лабы/АиСД/ADS/Treelab/cmake-build-debug/CMakeFiles/edit_cache.dir
-E:/Документы/Уник/Лабы/АиСД/ADS/Treelab/cmake-build-debug/CMakeFiles/rebuild_cache.dir
