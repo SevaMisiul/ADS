@@ -116,6 +116,7 @@ void Tree<T>::freeTree(Tree::Node *node) {
 template<typename T>
 Tree<T>::~Tree() {
     freeTree(tree);
+    tree = nullptr;
 }
 
 template<typename T>
@@ -152,7 +153,7 @@ template<typename T>
 std::string Tree<T>::toStringDirect() {
     std::string res = {};
     recToStringDirect(tree, res);
-    return res.substr(0, res.length() - 1);
+    return !res.empty() ? res.substr(0, res.length() - 1) : res;
 }
 
 template<typename T>
@@ -168,7 +169,7 @@ template<typename T>
 std::string Tree<T>::toStringSymmetric() {
     std::string res = {};
     recToStringSymmetric(tree, res);
-    return res.substr(0, res.length() - 1);
+    return !res.empty() ? res.substr(0, res.length() - 1) : res;
 }
 
 template<typename T>
@@ -184,7 +185,7 @@ template<typename T>
 std::string Tree<T>::toStringReverse() {
     std::string res = {};
     recToStringReverse(tree, res);
-    return res.substr(0, res.length() - 1);
+    return !res.empty() ? res.substr(0, res.length() - 1) : res;
 }
 
 template<typename T>
@@ -248,7 +249,7 @@ std::string Tree<T>::getRightThread() {
     std::string res = {};
     Node *previous = nullptr;
     recRightThread(tree, previous, res);
-    return res.substr(0, res.length() - 1);
+    return !res.empty() ? res.substr(0, res.length() - 1) : res;
 }
 
 
